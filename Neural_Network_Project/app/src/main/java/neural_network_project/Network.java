@@ -19,14 +19,14 @@ public class Network{
     public Network(int[] size){
         this.num_layers = size.length;
         this.networkSize = size;
-        for(int i=1;i < size.length;i++){
+        for(int i=1;i < num_layers;i++){
             // Number of neurons for current layer
             int x = size[i];
             INDArray bias = Nd4j.randn(x, 1);
             this.biases.add(bias);
         }
 
-        for(int i=0; i < size.length -1; i++){
+        for(int i=0; i < num_layers -1; i++){
             // Number of neurons for current layer
             int x = size[i];
             // Number of neurons for next layer
@@ -49,7 +49,7 @@ public class Network{
     }
 
 
-    public List<List<INDArray>> backpropagation(INDArray input, INDArray desiredOutput){
+    public List<List<INDArray>> backpropagation(INDArray output_activations, INDArray desiredOutput){
         List<INDArray> gradient_biases = new ArrayList<>();
         List<INDArray> gradient_weights = new ArrayList<>();
         
@@ -60,9 +60,9 @@ public class Network{
             gradient_weights.add(Nd4j.zerosLike(bias));
         }
 
-        INDArray activation = input;
+        INDArray activation = output_activations;
         List<INDArray> activations = new ArrayList<>();
-        activations.add(input);
+        activations.add(output_activations);
         List<INDArray> z_vectors = new ArrayList<>();
 
         for(int i=0; i<this.biases.size(); i++){
@@ -100,5 +100,68 @@ public class Network{
 
     public INDArray cost_derivative(INDArray output_activations, INDArray desiredOutput){
         return Nd4j.sub(output_activations,desiredOutput);
+    }
+
+
+    public void update_mini_batch(List<List<INDArray>> mini_batches, double learning_rate){
+        List<INDArray> gradient_biases = new ArrayList<>();
+        List<INDArray> gradient_weights = new ArrayList<>();
+        
+        for(INDArray weight:this.weights){
+            gradient_weights.add(Nd4j.zerosLike(weight));
+        }
+        for(INDArray bias:this.biases){
+            gradient_weights.add(Nd4j.zerosLike(bias));
+        }
+
+
+        // Iterate throught the mini batches
+        for(List<INDArray> mini_batch : mini_batches){
+            INDArray output_activations = mini_batch.get(0);
+            INDArray desiredOutput = mini_batch.get(1);
+
+            List<List<INDArray>> gradients = this.backpropagation(output_activations, desiredOutput);
+            List<INDArray> delta_gradient_biases = gradients.get(0);
+            List<INDArray> delta_gradient_weights = gradients.get(1);
+
+            for(int i=0; i<delta_gradient_biases.size(); i++){
+                INDArray gradient_bias = gradient_biases.get(i);
+                INDArray delta_gradient_bias = delta_gradient_biases.get(i);
+                INDArray new_gradient_bias = Nd4j.add(gradient_bias, delta_gradient_bias);
+
+                gradient_biases.set(i, new_gradient_bias);
+            }
+
+            for(int i=0; i<delta_gradient_weights.size(); i++){
+                INDArray gradient_weight = gradient_weights.get(i);
+                INDArray delta_gradient_weight = delta_gradient_weights.get(i);
+                INDArray new_gradient_weight = Nd4j.add(gradient_weight, delta_gradient_weight);
+
+                gradient_weights.set(i, new_gradient_weight);
+            }
+
+            // Updating the network weights and biases base on the average gradient of the mini batches
+            // Update the weights
+            for(int i=0; i<this.weights.size(); i++){
+                INDArray current_weight = this.weights.get(i);
+                INDarray gradient_weight_sum = gradient_weights.get(i);
+
+                INDArray average_weight_gradient = gradient_weight_sum.muli(learning_rate/mini_batches.size());
+                INDArray new_weight = Nd4j.sub(current_weight, average_weight_gradient);
+
+                this.weights.set(i, new_weight);
+            }
+
+            // Update the biases
+            for(int i=0; i<this.biases.size(); i++){
+                INDArray current_bias = this.biases.get(i);
+                INDarray gradient_bias_sum = gradient_biases.get(i);
+
+                INDArray average_bias_gradient = gradient_bias_sum.muli(learning_rate/mini_batches.size());
+                INDArray new_bias = Nd4j.sub(current_bias, average_bias_gradient);
+
+                this.biases.set(i, new_bias);
+            }
+        }
     }
 }
