@@ -164,4 +164,30 @@ public class Network{
             }
         }
     }
+
+
+    public int evaluate(List<List<INDArray>> test_datas){
+        int correct_predictions = 0;
+        List<List<Integer>> test_results = new ArrayList<>();
+
+        for(List<INDArray> test_data:test_datas){
+            INDArray raw_input = test_data.get(0);
+            INDArray desired_output = test_data.get(1);
+
+            INDArray finale_output_layer = this.feedforward(raw_input);
+            Integer class_index = Nd4j.argMax(finale_output_layer).getInt(0);
+
+            List<Integer> test_result = new ArrayList<>();
+            test_result.add(class_index);
+            test_result.add(desired_output);
+
+            test_results.add(test_result);
+        }
+
+        for(List<Integer> result:test_results){
+            if(result.get(0) == result.get(1)) correct_predictions++;
+        }
+
+        return correct_predictions;
+    }
 }
