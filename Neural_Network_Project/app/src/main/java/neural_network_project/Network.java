@@ -1,5 +1,6 @@
 package neural_network_project;
 
+import java.util.Collections;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Arrays;
@@ -46,6 +47,28 @@ public class Network{
         }
 
         return a;
+    }
+
+
+    public void stochasticGradientDescent(List<List<INDArray>> training_datas, int epochs, int mini_batch_size, double learning_rate, List<List<INDArray>> test_datas){
+        int n_test = test_datas.size();
+        int n = training_datas.size();
+
+        for(int i=0; i<epochs; i++){
+            Collections.shuffle(training_datas);
+            List<List<List<INDArray>>> mini_batches = new ArrayList<>();
+
+            for(int k=0; k<n; k+=mini_batch_size){
+                mini_batches.add(training_datas.subList(k, k+mini_batch_size));
+            }
+
+            for(List<List<INDArray>> mini_batch : mini_batches){
+                this.update_mini_batch(mini_batch, learning_rate);
+            }
+
+            System.out.println(String.format("Epoch %d: %d / %d", i, this.evaluate(test_datas), n_test));
+        }
+
     }
 
 
