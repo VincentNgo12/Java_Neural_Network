@@ -3,6 +3,9 @@ package neural_network_project;
 import java.util.Collections;
 import java.util.ArrayList;
 import java.util.List;
+
+import javax.sound.midi.SysexMessage;
+
 import java.util.Arrays;
 import neural_network_project.Helper;
 import org.nd4j.linalg.factory.Nd4j;
@@ -42,10 +45,10 @@ public class Network{
         for(int i = 0; i < this.biases.size(); i++){
             INDArray weightsMatrix = this.weights.get(i);
             INDArray biasesMatrix = this.biases.get(i);
-            a = weightsMatrix.mmul(a).add(biasesMatrix);
+            a = weightsMatrix.mmul(a);
+            a = a.add(biasesMatrix);
             a = Transforms.sigmoid(a);
         }
-
         return a;
     }
 
@@ -209,6 +212,7 @@ public class Network{
         }
 
         for(List<Integer> result:test_results){
+            //System.out.println(result);
             if(result.get(0) == result.get(1)) correct_predictions++;
         }
 

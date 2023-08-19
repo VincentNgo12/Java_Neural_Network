@@ -28,7 +28,7 @@ public class MnistCSVLoader{
                 }
 
                 // Create an INDArray from the pixel values
-                INDArray pixels = Nd4j.create(pixelsValue);
+                INDArray pixels = Nd4j.create(pixelsValue).reshape(pixelsValue.length, 1);
 
                 // get the label of the current image
                 int label = Integer.parseInt(values[0]);
@@ -39,7 +39,7 @@ public class MnistCSVLoader{
                 result.putScalar(label, 1.0);
 
                 List<INDArray> data = new ArrayList<>();
-                data.add(pixels.mul(1/255));
+                data.add(pixels);
                 data.add(result);
 
                 datas.add(data);
