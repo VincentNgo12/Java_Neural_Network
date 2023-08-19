@@ -28,7 +28,7 @@ public class MnistCSVLoader{
                 }
 
                 // Create an INDArray from the pixel values
-                INDArray pixels = Nd4j.create(pixelsValue).reshape(pixelsValue.length, 1);
+                INDArray pixels = Nd4j.create(pixelsValue).reshape(pixelsValue.length, 1).divi(255.0);
 
                 // get the label of the current image
                 int label = Integer.parseInt(values[0]);
