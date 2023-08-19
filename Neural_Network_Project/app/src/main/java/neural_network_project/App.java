@@ -14,7 +14,7 @@ public class App {
 
     public static void main(String[] args) {
         String trainingFile = "/workspaces/VincentNgo12/Neural_Network_Project/app/src/main/java/resources/MNIST_CSV/mnist_train.csv";
-        String testFile = "/workspaces/VincentNgo12/Neural_Network_Project/app/src/main/java/resources/MNIST_CSV/mnist_test.csv";
+        String testFile = "/workspaces/Java_Neural_Network/Neural_Network_Project/resources/MNIST/mnist_test.csv";
 
         //List<List<INDArray>> training_datas = MnistCSVLoader.LoadData(trainingFile);
         List<List<INDArray>> testing_datas = MnistCSVLoader.LoadData(testFile);

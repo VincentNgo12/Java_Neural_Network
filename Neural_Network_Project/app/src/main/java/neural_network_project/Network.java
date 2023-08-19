@@ -105,14 +105,13 @@ public class Network{
         gradient_weights.set(gradient_weights.size()-1,delta_vector.mmul(activations.get(activations.size()-2).transpose()));
 
 
-        System.out.println(this.num_layers);//########************WATCH THIS PART
-        for(int layer=this.num_layers-2; layer > 0; layer--){
-            INDArray z = z_vectors.get(layer);
+        for(int l=2; l > this.num_layers; l++){
+            INDArray z = z_vectors.get(z_vectors.size() - l);
             INDArray sigmoid_prime = Transforms.sigmoidDerivative(z);
-            delta_vector = this.weights.get(layer).transpose().mmul(delta_vector).mul(sigmoid_prime);
+            delta_vector = this.weights.get(this.weights.size()-l+1).transpose().mmul(delta_vector).mul(sigmoid_prime);
 
-            gradient_biases.set(layer, delta_vector);
-            gradient_weights.set(layer, delta_vector.mmul(activations.get(layer-1).transpose()));
+            gradient_biases.set(gradient_biases.size()-l, delta_vector);
+            gradient_weights.set(gradient_weights.size()-l, delta_vector.mmul(activations.get(activations.size()-l-1).transpose()));
         }
 
         List<List<INDArray>> gradients = new ArrayList<>();
@@ -135,7 +134,7 @@ public class Network{
             gradient_weights.add(Nd4j.zerosLike(weight));
         }
         for(INDArray bias:this.biases){
-            gradient_weights.add(Nd4j.zerosLike(bias));
+            gradient_biases.add(Nd4j.zerosLike(bias));
         }
 
 
