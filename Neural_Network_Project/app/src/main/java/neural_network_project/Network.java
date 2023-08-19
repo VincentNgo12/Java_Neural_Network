@@ -42,7 +42,7 @@ public class Network{
         for(int i = 0; i < this.biases.size(); i++){
             INDArray weightsMatrix = this.weights.get(i);
             INDArray biasesMatrix = this.biases.get(i);
-            a = Nd4j.add(weightsMatrix.mmul(a),biasesMatrix);
+            a = weightsMatrix.mmul(a).add(biasesMatrix);
             a = Transforms.sigmoid(a);
         }
 
@@ -50,7 +50,7 @@ public class Network{
     }
 
 
-    public void stochasticGradientDescent(List<List<INDArray>> training_datas, int epochs, int mini_batch_size, double learning_rate, List<List<INDArray>> test_datas){
+    public void stochasticGradientDescent(List<List<INDArray>> training_datas, int epochs, int mini_batch_size, float learning_rate, List<List<INDArray>> test_datas){
         int n_test = test_datas.size();
         int n = training_datas.size();
 
@@ -80,7 +80,7 @@ public class Network{
             gradient_weights.add(Nd4j.zerosLike(weight));
         }
         for(INDArray bias:this.biases){
-            gradient_weights.add(Nd4j.zerosLike(bias));
+            gradient_biases.add(Nd4j.zerosLike(bias));
         }
 
         INDArray activation = output_activations;
@@ -91,7 +91,7 @@ public class Network{
         for(int i=0; i<this.biases.size(); i++){
             INDArray weightsMatrix = this.weights.get(i);
             INDArray biasesMatrix = this.biases.get(i);
-            INDArray z = Nd4j.add(weightsMatrix.mmul(activation),biasesMatrix);
+            INDArray z = weightsMatrix.mmul(activation).add(biasesMatrix);
             z_vectors.add(z);
             activation = Transforms.sigmoid(z);
             activations.add(activation);
@@ -105,10 +105,11 @@ public class Network{
         gradient_weights.set(gradient_weights.size()-1,delta_vector.mmul(activations.get(activations.size()-2).transpose()));
 
 
+        System.out.println(this.num_layers);//########************WATCH THIS PART
         for(int layer=this.num_layers-2; layer > 0; layer--){
             INDArray z = z_vectors.get(layer);
             INDArray sigmoid_prime = Transforms.sigmoidDerivative(z);
-            delta_vector = this.weights.get(layer+1).transpose().mmul(delta_vector).mul(sigmoid_prime);
+            delta_vector = this.weights.get(layer).transpose().mmul(delta_vector).mul(sigmoid_prime);
 
             gradient_biases.set(layer, delta_vector);
             gradient_weights.set(layer, delta_vector.mmul(activations.get(layer-1).transpose()));
@@ -122,11 +123,11 @@ public class Network{
 
 
     public INDArray cost_derivative(INDArray output_activations, INDArray desiredOutput){
-        return Nd4j.sub(output_activations,desiredOutput);
+        return output_activations.sub(desiredOutput);
     }
 
 
-    public void update_mini_batch(List<List<INDArray>> mini_batches, double learning_rate){
+    public void update_mini_batch(List<List<INDArray>> mini_batches, float learning_rate){
         List<INDArray> gradient_biases = new ArrayList<>();
         List<INDArray> gradient_weights = new ArrayList<>();
         
@@ -150,7 +151,7 @@ public class Network{
             for(int i=0; i<delta_gradient_biases.size(); i++){
                 INDArray gradient_bias = gradient_biases.get(i);
                 INDArray delta_gradient_bias = delta_gradient_biases.get(i);
-                INDArray new_gradient_bias = Nd4j.add(gradient_bias, delta_gradient_bias);
+                INDArray new_gradient_bias = gradient_bias.add(delta_gradient_bias);
 
                 gradient_biases.set(i, new_gradient_bias);
             }
@@ -158,7 +159,7 @@ public class Network{
             for(int i=0; i<delta_gradient_weights.size(); i++){
                 INDArray gradient_weight = gradient_weights.get(i);
                 INDArray delta_gradient_weight = delta_gradient_weights.get(i);
-                INDArray new_gradient_weight = Nd4j.add(gradient_weight, delta_gradient_weight);
+                INDArray new_gradient_weight = gradient_weight.add(delta_gradient_weight);
 
                 gradient_weights.set(i, new_gradient_weight);
             }
@@ -167,10 +168,10 @@ public class Network{
             // Update the weights
             for(int i=0; i<this.weights.size(); i++){
                 INDArray current_weight = this.weights.get(i);
-                INDarray gradient_weight_sum = gradient_weights.get(i);
+                INDArray gradient_weight_sum = gradient_weights.get(i);
 
                 INDArray average_weight_gradient = gradient_weight_sum.muli(learning_rate/mini_batches.size());
-                INDArray new_weight = Nd4j.sub(current_weight, average_weight_gradient);
+                INDArray new_weight = current_weight.sub(average_weight_gradient);
 
                 this.weights.set(i, new_weight);
             }
@@ -178,10 +179,10 @@ public class Network{
             // Update the biases
             for(int i=0; i<this.biases.size(); i++){
                 INDArray current_bias = this.biases.get(i);
-                INDarray gradient_bias_sum = gradient_biases.get(i);
+                INDArray gradient_bias_sum = gradient_biases.get(i);
 
                 INDArray average_bias_gradient = gradient_bias_sum.muli(learning_rate/mini_batches.size());
-                INDArray new_bias = Nd4j.sub(current_bias, average_bias_gradient);
+                INDArray new_bias = current_bias.sub(average_bias_gradient);
 
                 this.biases.set(i, new_bias);
             }
@@ -199,10 +200,11 @@ public class Network{
 
             INDArray finale_output_layer = this.feedforward(raw_input);
             Integer class_index = Nd4j.argMax(finale_output_layer).getInt(0);
+            Integer class_result = Nd4j.argMax(desired_output).getInt(0);
 
             List<Integer> test_result = new ArrayList<>();
             test_result.add(class_index);
-            test_result.add(desired_output);
+            test_result.add(class_result);
 
             test_results.add(test_result);
         }

@@ -4,16 +4,25 @@
 package neural_network_project;
 
 import neural_network_project.Network;
+import neural_network_project.MnistCSVLoader;
+import java.util.ArrayList;
+import java.util.List;
 import org.nd4j.linalg.factory.Nd4j;
 import org.nd4j.linalg.api.ndarray.INDArray;
 
 public class App {
 
     public static void main(String[] args) {
-        int[] size = {1,2};
-        Network network = new Network(size);
-        System.out.println(network.weights);
-        INDArray a = Nd4j.create(new float[] {999});
-        System.out.println(network.feedforward(a));
+        String trainingFile = "/workspaces/VincentNgo12/Neural_Network_Project/app/src/main/java/resources/MNIST_CSV/mnist_train.csv";
+        String testFile = "/workspaces/VincentNgo12/Neural_Network_Project/app/src/main/java/resources/MNIST_CSV/mnist_test.csv";
+
+        //List<List<INDArray>> training_datas = MnistCSVLoader.LoadData(trainingFile);
+        List<List<INDArray>> testing_datas = MnistCSVLoader.LoadData(testFile);
+
+
+        Network net = new Network(new int[]{784 , 30, 10});
+        float eta = 3.0f;
+        net.stochasticGradientDescent(testing_datas, 30, 10, eta, testing_datas);
+
     }
 }
