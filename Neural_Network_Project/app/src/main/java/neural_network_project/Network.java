@@ -11,9 +11,16 @@ import neural_network_project.Helper;
 import org.nd4j.linalg.factory.Nd4j;
 import org.nd4j.linalg.api.ndarray.INDArray;
 import org.nd4j.linalg.ops.transforms.Transforms;
+// Java serialization 
+import java.io.IOException;
+import java.io.FileOutputStream;
+import java.io.ObjectOutputStream;
+import java.io.FileInputStream;
+import java.io.ObjectInputStream;
+import java.io.Serializable;
 
 
-public class Network{
+public class Network implements Serializable{
     int num_layers;
     int[] networkSize;
     List<INDArray> weights = new ArrayList<>();
@@ -216,5 +223,29 @@ public class Network{
         }
 
         return correct_predictions;
+    }
+
+
+    public void saveNetwork(String fileLocation) {
+        try (ObjectOutputStream output = new ObjectOutputStream(new FileOutputStream(fileLocation))) {
+            System.out.println("Saving current Network...");
+            output.writeObject(this);
+            System.out.println("Network saved.");
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+
+    public static Network loadNetwork(String fileLocation) {
+        Network net = null;
+        try (ObjectInputStream input = new ObjectInputStream(new FileInputStream(fileLocation))) {
+            System.out.println("Loading Network...");
+            net = (Network) input.readObject();
+            System.out.println("Network loaded");
+        } catch (IOException | ClassNotFoundException e) {
+            e.printStackTrace();
+        }
+        return net;
     }
 }
