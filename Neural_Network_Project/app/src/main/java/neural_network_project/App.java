@@ -21,8 +21,7 @@ public class App {
 
 
         Network net = new Network(new int[]{784 , 30, 10});
-        float eta = 3.0f;
-        net.stochasticGradientDescent(testing_datas, 30, 10, eta, testing_datas);
+        net.stochasticGradientDescent(testing_datas, 30, 10, 3.0f, testing_datas);
 
     }
 }

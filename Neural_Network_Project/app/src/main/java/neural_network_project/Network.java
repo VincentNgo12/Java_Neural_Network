@@ -108,7 +108,7 @@ public class Network{
         gradient_weights.set(gradient_weights.size()-1,delta_vector.mmul(activations.get(activations.size()-2).transpose()));
 
 
-        for(int l=2; l > this.num_layers; l++){
+        for(int l=2; l < this.num_layers; l++){
             INDArray z = z_vectors.get(z_vectors.size() - l);
             INDArray sigmoid_prime = Transforms.sigmoidDerivative(z);
             delta_vector = this.weights.get(this.weights.size()-l+1).transpose().mmul(delta_vector).mul(sigmoid_prime);

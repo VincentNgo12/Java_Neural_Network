@@ -4,5 +4,5 @@
 # Ignore Gradle build output directory
 build
 /workspaces/Java_Neural_Network/Neural_Network_Project/resources
-/workspaces/Java_Neural_Network/Neural_Network_Project/resources/MNIST
-/workspaces/Java_Neural_Network/Neural_Network_Project/resources/MNIST/mnist_test.csv
+resources/
+*.csv
