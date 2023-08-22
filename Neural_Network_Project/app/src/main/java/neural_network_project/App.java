@@ -13,15 +13,15 @@ import org.nd4j.linalg.api.ndarray.INDArray;
 public class App {
 
     public static void main(String[] args) {
-        String trainingFile = "/workspaces/VincentNgo12/Neural_Network_Project/app/src/main/java/resources/MNIST_CSV/mnist_train.csv";
+        String trainingFile = "/workspaces/Java_Neural_Network/Neural_Network_Project/resources/MNIST/mnist_train.csv";
         String testFile = "/workspaces/Java_Neural_Network/Neural_Network_Project/resources/MNIST/mnist_test.csv";
 
-        //List<List<INDArray>> training_datas = MnistCSVLoader.LoadData(trainingFile);
+        List<List<INDArray>> training_datas = MnistCSVLoader.LoadData(trainingFile);
         List<List<INDArray>> testing_datas = MnistCSVLoader.LoadData(testFile);
 
 
         Network net = new Network(new int[]{784 , 30, 10});
-        net.stochasticGradientDescent(testing_datas, 30, 10, 3.0f, testing_datas);
+        net.stochasticGradientDescent(training_datas, 30, 10, 3.0f, testing_datas);
 
     }
 }

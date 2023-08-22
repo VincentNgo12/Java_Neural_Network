@@ -212,7 +212,6 @@ public class Network{
         }
 
         for(List<Integer> result:test_results){
-            System.out.println(result);
             if(result.get(0) == result.get(1)) correct_predictions++;
         }
 
