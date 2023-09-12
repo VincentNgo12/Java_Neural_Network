@@ -3,7 +3,7 @@
  */
 package neural_network_project;
 
-import neural_network_project.Network;
+import neural_network_project.Network1;
 import neural_network_project.MnistCSVLoader;
 import java.util.ArrayList;
 import java.util.List;
@@ -20,7 +20,7 @@ public class App {
         List<List<INDArray>> testing_datas = MnistCSVLoader.LoadData(testFile);
 
 
-        Network net = new Network(new int[]{784 , 30, 10});
+        Network net = new Network1(new int[]{784 , 30, 10});
         net.stochasticGradientDescent(training_datas, 5, 10, 3.0f, testing_datas);
 
     }

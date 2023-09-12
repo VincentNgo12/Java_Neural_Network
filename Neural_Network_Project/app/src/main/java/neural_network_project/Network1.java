@@ -20,7 +20,7 @@ import java.io.ObjectInputStream;
 import java.io.Serializable;
 
 
-public class Network implements Serializable{
+public class Network1 implements Serializable{
     int num_layers;
     int[] networkSize;
     List<INDArray> weights = new ArrayList<>();
