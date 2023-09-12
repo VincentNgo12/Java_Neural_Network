@@ -18,13 +18,13 @@ public class Tanh extends Layer{
     @Override
     public INDArray forward(INDArray input){
         this.input = input;
-        return Transforms.tanh(input);
+        return Transforms.hardTanh(input);
     }
 
 
     // comput the input gradient (cost derivative respect to input)
     @Override
     public INDArray backward(INDArray output_gradient, float learning_rate){
-        return output_gradient.muli(Transforms.sigmoidDerivative(this.input));
+        return output_gradient.muli(Transforms.hardTanhDerivative(this.input));
     }
 }

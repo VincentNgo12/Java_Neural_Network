@@ -20,16 +20,20 @@ import java.io.ObjectInputStream;
 import java.io.Serializable;
 
 
+// This class implements Serializable to save intances of the class
 public class Network1 implements Serializable{
     int num_layers;
     int[] networkSize;
+    // Weights and biases are store in seperate lists.
     List<INDArray> weights = new ArrayList<>();
     List<INDArray> biases = new ArrayList<>();
 
 
+    // Constructor takes in an array of int to represent the network's size
     public Network1(int[] size){
         this.num_layers = size.length;
         this.networkSize = size;
+        // Initialize the network's biases. Skip the first layer since we don't need a bias vector for that
         for(int i=1;i < num_layers;i++){
             // Number of neurons for current layer
             int x = size[i];
@@ -37,6 +41,7 @@ public class Network1 implements Serializable{
             this.biases.add(bias);
         }
 
+        // Same thing with the weights, except the weights are represented as matricies
         for(int i=0; i < num_layers -1; i++){
             // Number of neurons for current layer
             int x = size[i];
@@ -48,44 +53,59 @@ public class Network1 implements Serializable{
     }
 
 
+    // Method to feedforward inputs through the whole network
     public INDArray feedforward(INDArray a){
+        // Iterate through each layers to compute output
         for(int i = 0; i < this.biases.size(); i++){
             INDArray weightsMatrix = this.weights.get(i);
             INDArray biasesMatrix = this.biases.get(i);
             a = weightsMatrix.mmul(a);
             a = a.add(biasesMatrix);
+            // Apply activation function
             a = Transforms.sigmoid(a);
         }
         return a;
     }
 
 
+    /*Implementation of stochastic Gradient Descent, this is where the network trains.
+    All the bulk works is done in the backpropagation() method */ 
     public void stochasticGradientDescent(List<List<INDArray>> training_datas, int epochs, int mini_batch_size, float learning_rate, List<List<INDArray>> test_datas){
+        // Size of each datasets. One for training and one for testing.
         int n_test = test_datas.size();
         int n = training_datas.size();
 
+        // Iterate through the epochs
         for(int i=0; i<epochs; i++){
+            // Shuffle up the training datas.
             Collections.shuffle(training_datas);
             List<List<List<INDArray>>> mini_batches = new ArrayList<>();
 
+            // divide the training datas into smaller mini batches
             for(int k=0; k<n; k+=mini_batch_size){
                 mini_batches.add(training_datas.subList(k, k+mini_batch_size));
             }
 
+            // Train the network using update_mini_batch() (which uses backpropagation())
             for(List<List<INDArray>> mini_batch : mini_batches){
                 this.update_mini_batch(mini_batch, learning_rate);
             }
 
+            // Print out the evaluated accuracy on current epoch
             System.out.println(String.format("Epoch %d: %d / %d", i, this.evaluate(test_datas), n_test));
         }
 
     }
 
 
+    // This where backpropagation is implemented, the bulk of neural network computations.
     public List<List<INDArray>> backpropagation(INDArray output_activations, INDArray desiredOutput){
+        // Create lists to store the gradient vectors and matricies of biases and weights
         List<INDArray> gradient_biases = new ArrayList<>();
         List<INDArray> gradient_weights = new ArrayList<>();
         
+        /*Initialize them with zeros, gradient vectors and matrices have to be the same size of the 
+        current biases and weights of the network*/ 
         for(INDArray weight:this.weights){
             gradient_weights.add(Nd4j.zerosLike(weight));
         }
@@ -93,11 +113,15 @@ public class Network1 implements Serializable{
             gradient_biases.add(Nd4j.zerosLike(bias));
         }
 
+        // output_activations is the raw feedforward activated output of the network.
         INDArray activation = output_activations;
+        // Create list to store all activated outputs of layers and add the last output
         List<INDArray> activations = new ArrayList<>();
         activations.add(output_activations);
+        // z vectors is the output of each layer before being activated
         List<INDArray> z_vectors = new ArrayList<>();
 
+        // Fill up the two recent lists with activated and inactivated outputs of each layer
         for(int i=0; i<this.biases.size(); i++){
             INDArray weightsMatrix = this.weights.get(i);
             INDArray biasesMatrix = this.biases.get(i);
@@ -107,23 +131,36 @@ public class Network1 implements Serializable{
             activations.add(activation);
         }
 
+        // Get the last activated and inactivated outputs (the last layer)
         INDArray last_activation_layer = activations.get(activations.size()-1);
         INDArray last_z_vector_layer = z_vectors.get(z_vectors.size()-1);
+
         // Backward pass
+        /* delta_vector is the derivative of the loss function with respect to  inactivated 
+        output (z). Using the chain rule, we can compute this by multiplying cost_derivative
+        (derivative of the loss respect to the last activated ouput) by sigmoid derivative of z
+        which is the activation function we are using
+        */ 
         INDArray delta_vector = this.cost_derivative(last_activation_layer, desiredOutput).mul(Transforms.sigmoidDerivative(last_z_vector_layer));
+        // Compute and add the last layer's biases and weights gradient to the list.
         gradient_biases.set(gradient_biases.size()-1,delta_vector);
         gradient_weights.set(gradient_weights.size()-1,delta_vector.mmul(activations.get(activations.size()-2).transpose()));
 
 
+        // This is where we comput the gradient of the rest parameters of the network
         for(int l=2; l < this.num_layers; l++){
+            //We are moving backward throught the network (last to first)
             INDArray z = z_vectors.get(z_vectors.size() - l);
             INDArray sigmoid_prime = Transforms.sigmoidDerivative(z);
+            // Compute the delta_vector using the formula.
             delta_vector = this.weights.get(this.weights.size()-l+1).transpose().mmul(delta_vector).mul(sigmoid_prime);
 
+            // Assign the computed biases and weights gradient to the list
             gradient_biases.set(gradient_biases.size()-l, delta_vector);
             gradient_weights.set(gradient_weights.size()-l, delta_vector.mmul(activations.get(activations.size()-l-1).transpose()));
         }
 
+        // We forged the two gradients to a list and return it so other methods can use it.
         List<List<INDArray>> gradients = new ArrayList<>();
         gradients.add(gradient_biases);
         gradients.add(gradient_weights);
@@ -131,15 +168,18 @@ public class Network1 implements Serializable{
     }
 
 
+    // This is for computing the cost derivative (loss function with respect to activated output)
     public INDArray cost_derivative(INDArray output_activations, INDArray desiredOutput){
         return output_activations.sub(desiredOutput);
     }
 
 
+    // Now we have computed the gradients for the network's parameters. We just need to update them.
     public void update_mini_batch(List<List<INDArray>> mini_batches, float learning_rate){
         List<INDArray> gradient_biases = new ArrayList<>();
         List<INDArray> gradient_weights = new ArrayList<>();
-        
+
+        // Creating and initializing the weights and biases gradients
         for(INDArray weight:this.weights){
             gradient_weights.add(Nd4j.zerosLike(weight));
         }
@@ -150,13 +190,17 @@ public class Network1 implements Serializable{
 
         // Iterate throught the mini batches
         for(List<INDArray> mini_batch : mini_batches){
+            // Get the network's output and the correct labeled output
             INDArray output_activations = mini_batch.get(0);
             INDArray desiredOutput = mini_batch.get(1);
 
+            // Feed them to the backpropagation() method
             List<List<INDArray>> gradients = this.backpropagation(output_activations, desiredOutput);
+            // Get the returned gradients
             List<INDArray> delta_gradient_biases = gradients.get(0);
             List<INDArray> delta_gradient_weights = gradients.get(1);
 
+            // Add up the gradients of each mini batches
             for(int i=0; i<delta_gradient_biases.size(); i++){
                 INDArray gradient_bias = gradient_biases.get(i);
                 INDArray delta_gradient_bias = delta_gradient_biases.get(i);
@@ -173,7 +217,8 @@ public class Network1 implements Serializable{
                 gradient_weights.set(i, new_gradient_weight);
             }
 
-            // Updating the network weights and biases base on the average gradient of the mini batches
+            /*Updating the network weights and biases base on the average gradient of the mini batches
+            (with the learning rate)*/
             // Update the weights
             for(int i=0; i<this.weights.size(); i++){
                 INDArray current_weight = this.weights.get(i);
@@ -199,6 +244,7 @@ public class Network1 implements Serializable{
     }
 
 
+    // This method is to evaluate the accuracy of the network with the test datas
     public int evaluate(List<List<INDArray>> test_datas){
         int correct_predictions = 0;
         List<List<Integer>> test_results = new ArrayList<>();
