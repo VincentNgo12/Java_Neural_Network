@@ -25,6 +25,6 @@ public class Tanh extends Layer{
     // comput the input gradient (cost derivative respect to input)
     @Override
     public INDArray backward(INDArray output_gradient, float learning_rate){
-        return output_gradient.muli(Transforms.tanhDerivative(this.input));
+        return output_gradient.muli(Transforms.sigmoidDerivative(this.input));
     }
 }

@@ -27,7 +27,7 @@ public class Network1 implements Serializable{
     List<INDArray> biases = new ArrayList<>();
 
 
-    public Network(int[] size){
+    public Network1(int[] size){
         this.num_layers = size.length;
         this.networkSize = size;
         for(int i=1;i < num_layers;i++){
@@ -237,11 +237,11 @@ public class Network1 implements Serializable{
     }
 
 
-    public static Network loadNetwork(String fileLocation) {
-        Network net = null;
+    public static Network1 loadNetwork(String fileLocation) {
+        Network1 net = null;
         try (ObjectInputStream input = new ObjectInputStream(new FileInputStream(fileLocation))) {
             System.out.println("Loading Network...");
-            net = (Network) input.readObject();
+            net = (Network1) input.readObject();
             System.out.println("Network loaded");
         } catch (IOException | ClassNotFoundException e) {
             e.printStackTrace();

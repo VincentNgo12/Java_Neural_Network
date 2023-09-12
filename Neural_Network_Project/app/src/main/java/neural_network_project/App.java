@@ -20,7 +20,7 @@ public class App {
         List<List<INDArray>> testing_datas = MnistCSVLoader.LoadData(testFile);
 
 
-        Network net = new Network1(new int[]{784 , 30, 10});
+        Network1 net = new Network1(new int[]{784 , 30, 10});
         net.stochasticGradientDescent(training_datas, 5, 10, 3.0f, testing_datas);
 
     }

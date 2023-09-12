@@ -21,14 +21,14 @@ import java.io.Serializable;
 
 
 
-public class Network implements Serializable{
+public class Network2 implements Serializable{
     int num_layers;
     int[] networkSize;
     List<INDArray> weights = new ArrayList<>();
     List<INDArray> biases = new ArrayList<>();
 
 
-    public Network(int[] size){
+    public Network2(int[] size){
         this.num_layers = size.length;
         this.networkSize = size;
         for(int i=1;i < num_layers;i++){
@@ -238,11 +238,11 @@ public class Network implements Serializable{
     }
 
 
-    public static Network loadNetwork(String fileLocation) {
-        Network net = null;
+    public static Network2 loadNetwork(String fileLocation) {
+        Network2 net = null;
         try (ObjectInputStream input = new ObjectInputStream(new FileInputStream(fileLocation))) {
             System.out.println("Loading Network...");
-            net = (Network) input.readObject();
+            net = (Network2) input.readObject();
             System.out.println("Network loaded");
         } catch (IOException | ClassNotFoundException e) {
             e.printStackTrace();
