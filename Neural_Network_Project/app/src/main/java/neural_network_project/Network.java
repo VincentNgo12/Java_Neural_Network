@@ -21,7 +21,7 @@ import java.io.Serializable;
 
 
 public class Network implements Serializable{
-    List<Layer> layers;
+    Layer[] layers;
 
     // Initialize the object
     public Network(Layer... layers){
@@ -30,13 +30,34 @@ public class Network implements Serializable{
 
 
     // This methods feed forward throught the layers of the network
-    public INDArray(INDArray input){
+    public INDArray feedforward(INDArray input){
         for(Layer layer : layers){
             input = layer.forward(input);
         }
         return input;
     }
 
+
+    public void train(List<List<INDArray>> training_datas, int epochs, float learning_rate, List<List<INDArray>> test_datas){
+        for(int e=0; e<epochs; e++){
+            for(List<INDArray> training_data: training_datas){
+                INDArray output = training_data.get(0);
+                INDArray y = training_data.get(1);
+
+                for(Layer layer: this.layers){
+                    output = layer.forward(output);
+                }
+
+                INDArray grad = cost_derivative(output,y);
+                for(int i=1; i<this.layers.length; i++){
+                    Layer backLayer = this.layers[this.layers.length-1];
+                    grad = backLayer.backward(grad, learning_rate);
+                }
+            }
+            // Print out the evaluated accuracy on current epoch
+            System.out.println(String.format("Epoch %d: %d / %d", e, this.evaluate(test_datas), 10000));
+        }
+    }
 
 
     // Comput the mean-square cost derivative
