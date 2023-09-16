@@ -8,5 +8,5 @@ import org.nd4j.linalg.api.ndarray.INDArray;
 public abstract class Layer{
 
     public abstract INDArray forward(INDArray input);
-    public abstract INDArray backward(INDArray output_gradient, float learning_rate);
+    public abstract INDArray backward(INDArray output_gradient);
 }

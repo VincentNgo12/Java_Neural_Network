@@ -80,22 +80,22 @@ public class FullyConnectedLayer extends Layer{
 
 
     // This getter method is to get the weights gradients of the current layer
-    public List<INDArray> get_weights_gradients(){
+    public INDArray get_weights_gradients(){
         return this.weights_gradient;
     }
 
     // This getter method is to get the biases gradients of the current layer
-    public List<INDArray> get_biases_gradients(){
+    public INDArray get_biases_gradients(){
         return this.biases_gradient;
     }
 
     // This method returns the current layer's weights
-    public List<INDArray> get_weights(){
+    public INDArray get_weights(){
         return this.weights;
     }
 
     // This method returns the current layer's biases
-    public List<INDArray> get_biases(){
+    public INDArray get_biases(){
         return this.biases;
     }
 

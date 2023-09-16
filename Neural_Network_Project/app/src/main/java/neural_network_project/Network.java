@@ -8,6 +8,9 @@ import javax.sound.midi.SysexMessage;
 
 import java.util.Arrays;
 import neural_network_project.Layers.Layer;
+import neural_network_project.Layers.FullyConnectedLayer;
+import neural_network_project.ActivationFuncs.Sigmoid;
+import neural_network_project.ActivationFuncs.Tanh;
 import org.nd4j.linalg.factory.Nd4j;
 import org.nd4j.linalg.api.ndarray.INDArray;
 import org.nd4j.linalg.ops.transforms.Transforms;
@@ -45,15 +48,15 @@ public class Network implements Serializable{
         List<INDArray> gradient_biases = new ArrayList<>();
         List<INDArray> gradient_weights = new ArrayList<>();
 
-        /*Initialize them with zeros, gradient vectors and matrices have to be the same size of the 
-        current biases and weights of the network*/ 
-        for(int i=0; i<this.num_layers; i++){
-            Layer layer = this.layers[i];
-            if(layer.is_trainable()){
-                gradient_weights.add(Nd4j.zerosLike(layer.get_weights()));
-                gradient_biases.add(Nd4j.zerosLike(layer.get_biases()));
-            }
-        }
+        // /*Initialize them with zeros, gradient vectors and matrices have to be the same size of the 
+        // current biases and weights of the network*/ 
+        // for(int i=0; i<this.num_layers; i++){
+        //     Layer layer = this.layers[i];
+        //     if(layer.is_trainable()){
+        //         gradient_weights.add(Nd4j.zerosLike(layer.get_weights()));
+        //         gradient_biases.add(Nd4j.zerosLike(layer.get_biases()));
+        //     }
+        // }
 
 
         // Start computing the gradients
@@ -61,6 +64,34 @@ public class Network implements Serializable{
 
         // First, we need the gradient of the very last cost layer
         INDArray grad = cost_derivative(output,desiredOutput);
+
+        // Backpropagate through the layers (going backward)
+        for(int i=this.num_layers-1; i>=0; i--){
+            Layer layer = this.layers[i];
+            // If the layer is not trainable (activation layers)
+            if(!layer.is_trainable()){
+                grad = layer.backward(grad);
+            }
+
+            grad = layer.backward(grad);
+            gradient_weights.add(layer.get_weights_gradients());
+            biases_gradient.add(layer.get_biases_gradients());
+        }
+
+        // reverse the gradient list because we have been adding it backwards
+        Collections.reverse(gradient_weights);
+        Collections.reverse(gradient_biases);
+
+        // We forged the two gradients to a list and return it so other methods can use it.
+        List<List<INDArray>> gradients = new ArrayList<>();
+        gradients.add(gradient_weights);
+        gradients.add(gradient_biases);
+        return gradients;
+    }
+
+
+    public void update_mini_batch(List<List<INDArray>> mini_batches, float learning_rate){
+        
     }
 
 
