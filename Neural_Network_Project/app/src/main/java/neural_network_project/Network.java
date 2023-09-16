@@ -22,10 +22,12 @@ import java.io.Serializable;
 
 public class Network implements Serializable{
     Layer[] layers;
+    int num_layers;
 
     // Initialize the object
     public Network(Layer... layers){
         this.layers = layers;
+        this.num_layers = layers.length;
     }
 
 
@@ -35,6 +37,30 @@ public class Network implements Serializable{
             input = layer.forward(input);
         }
         return input;
+    }
+
+
+    public List<List<INDArray>> backpropagation(INDArray input, INDArray desiredOutput){
+        // Create lists to store the gradient vectors and matricies of biases and weights
+        List<INDArray> gradient_biases = new ArrayList<>();
+        List<INDArray> gradient_weights = new ArrayList<>();
+
+        /*Initialize them with zeros, gradient vectors and matrices have to be the same size of the 
+        current biases and weights of the network*/ 
+        for(int i=0; i<this.num_layers; i++){
+            Layer layer = this.layers[i];
+            if(layer.is_trainable()){
+                gradient_weights.add(Nd4j.zerosLike(layer.get_weights()));
+                gradient_biases.add(Nd4j.zerosLike(layer.get_biases()));
+            }
+        }
+
+
+        // Start computing the gradients
+        INDArray output = this.feedforward(input);
+
+        // First, we need the gradient of the very last cost layer
+        INDArray grad = cost_derivative(output,desiredOutput);
     }
 
 

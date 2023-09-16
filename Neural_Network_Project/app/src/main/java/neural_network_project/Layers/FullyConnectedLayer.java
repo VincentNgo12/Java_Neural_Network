@@ -18,7 +18,9 @@ public class FullyConnectedLayer extends Layer{
     int n_In;
     int n_Out;
     INDArray biases;
+    INDArray biases_gradient;
     INDArray weights;
+    INDArray weights_gradient;
     INDArray input;
     List<INDArray> parameters = new ArrayList<>();
     
@@ -44,8 +46,6 @@ public class FullyConnectedLayer extends Layer{
         // Here we pass the input and comput the output as usual.
         a = this.weights.mmul(a);
         a = a.add(this.biases);
-        // Activation on the output
-        a = Transforms.sigmoid(a);
 
         return a;
     }
@@ -53,19 +53,54 @@ public class FullyConnectedLayer extends Layer{
 
     /*This is the backward pass, given the output gradient (derivative of 
     cost func with respect to output), calculate the derivative with respect to weights and biases 
-    (parameters gradients) and then update the layer's parameters*/
+    (parameters gradients) and then return the input gradient*/
     @Override
-    public INDArray backward(INDArray output_gradient, float learning_rate){
+    public INDArray backward(INDArray output_gradient){
         // Comput weights gradient given output gradient
-        INDArray weights_gradient = output_gradient.mmul(this.input.transpose());
-        // updating the layer parameters
-        this.weights.subi(weights_gradient.muli(learning_rate));
+        this.weights_gradient = output_gradient.mmul(this.input.transpose());
+
         // We don't compute the biases gradient since its equal to output_gradient
-        this.biases.subi(output_gradient.mul(learning_rate));
+        this.biases_gradient = output_gradient;
 
         // Here we comput the input_gradient (deriavtive of cost func respect to layer input)
         INDArray input_gradient = this.weights.transpose().mmul(output_gradient);
         
         return input_gradient;
+    }
+
+
+    public void update_mini_batch(INDArray weights_gradient, INDArray biases_gradient, float learning_rate, int mini_batch_size){
+        // Calculate the average gradient of the mini batch and update the parameters with learning rate
+        INDArray average_weights_gradient = weights_gradient.muli(learning_rate/mini_batch_size);
+        this.weights.subi(average_weights_gradient);
+
+        INDArray average_biases_gradient = weights_gradient.muli(learning_rate/mini_batch_size);
+        this.biases.subi(average_biases_gradient);
+    }
+
+
+    // This getter method is to get the weights gradients of the current layer
+    public List<INDArray> get_weights_gradients(){
+        return this.weights_gradient;
+    }
+
+    // This getter method is to get the biases gradients of the current layer
+    public List<INDArray> get_biases_gradients(){
+        return this.biases_gradient;
+    }
+
+    // This method returns the current layer's weights
+    public List<INDArray> get_weights(){
+        return this.weights;
+    }
+
+    // This method returns the current layer's biases
+    public List<INDArray> get_biases(){
+        return this.biases;
+    }
+
+    // Tell if this layer is trainable or not
+    public boolean is_trainable(){
+        return true;
     }
 }

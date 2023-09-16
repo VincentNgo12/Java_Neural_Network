@@ -28,4 +28,9 @@ public class Sigmoid extends Layer{
     public INDArray backward(INDArray output_gradient, float learning_rate){
         return output_gradient.muli(Transforms.sigmoidDerivative(this.input));
     }
+
+    // Tell if this layer is trainable or not
+    public boolean is_trainable(){
+        return false;
+    }
 }
