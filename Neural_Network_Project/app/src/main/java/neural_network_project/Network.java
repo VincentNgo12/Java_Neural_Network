@@ -160,28 +160,6 @@ public class Network implements Serializable{
     }
 
 
-    // public void train(List<List<INDArray>> training_datas, int epochs, float learning_rate, List<List<INDArray>> test_datas){
-    //     for(int e=0; e<epochs; e++){
-    //         for(List<INDArray> training_data: training_datas){
-    //             INDArray output = training_data.get(0);
-    //             INDArray y = training_data.get(1);
-
-    //             for(Layer layer: this.layers){
-    //                 output = layer.forward(output);
-    //             }
-
-    //             INDArray grad = cost_derivative(output,y);
-    //             for(int i=1; i<this.layers.length; i++){
-    //                 Layer backLayer = this.layers[this.layers.length-1];
-    //                 grad = backLayer.backward(grad, learning_rate);
-    //             }
-    //         }
-    //         // Print out the evaluated accuracy on current epoch
-    //         System.out.println(String.format("Epoch %d: %d / %d", e, this.evaluate(test_datas), 10000));
-    //     }
-    // }
-
-
     // Comput the mean-square cost derivative
     public INDArray cost_derivative(INDArray output_activations, INDArray desiredOutput){
         return output_activations.sub(desiredOutput);
