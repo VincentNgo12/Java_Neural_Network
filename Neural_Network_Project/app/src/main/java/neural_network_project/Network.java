@@ -26,6 +26,8 @@ import java.io.Serializable;
 public class Network implements Serializable{
     Layer[] layers;
     int num_layers;
+    List<INDArray> biases_gradient;
+    List<INDArray> weights_gradient;
 
     // Initialize the object
     public Network(Layer... layers){
@@ -43,11 +45,34 @@ public class Network implements Serializable{
     }
 
 
-    public List<List<INDArray>> backpropagation(INDArray input, INDArray desiredOutput){
-        // Create lists to store the gradient vectors and matricies of biases and weights
-        List<INDArray> gradient_biases = new ArrayList<>();
-        List<INDArray> gradient_weights = new ArrayList<>();
+    public void stochastic_gradient_descent(List<List<INDArray>> training_datas, int epochs, int mini_batch_size, float learning_rate, List<List<INDArray>> test_datas){
+        // Size of each datasets. One for training and one for testing.
+        int n_test = test_datas.size();
+        int n = training_datas.size();
 
+        // Iterate through the epochs
+        for(int i=0; i<epochs; i++){
+            // Shuffle up the training datas.
+            Collections.shuffle(training_datas);
+            List<List<List<INDArray>>> mini_batches = new ArrayList<>();
+
+            // divide the training datas into smaller mini batches
+            for(int k=0; k<n; k+=mini_batch_size){
+                mini_batches.add(training_datas.subList(k, k+mini_batch_size));
+            }
+
+            // Train the network using update_mini_batch() (which uses backpropagation())
+            for(List<List<INDArray>> mini_batch : mini_batches){
+                this.update_mini_batch(mini_batch, learning_rate, mini_batch_size);
+            }
+
+            // Print out the evaluated accuracy on current epoch
+            System.out.println(String.format("Epoch %d: %d / %d", i, this.evaluate(test_datas), n_test));
+        }   
+    }
+
+
+    public void backpropagation(INDArray input, INDArray desiredOutput){
         // /*Initialize them with zeros, gradient vectors and matrices have to be the same size of the 
         // current biases and weights of the network*/ 
         // for(int i=0; i<this.num_layers; i++){
@@ -64,6 +89,9 @@ public class Network implements Serializable{
 
         // First, we need the gradient of the very last cost layer
         INDArray grad = cost_derivative(output,desiredOutput);
+        // Keep track of the index of the network's list of gradients
+        int gradientList_index = this.biases_gradient.size() - 1;
+
 
         // Backpropagate through the layers (going backward)
         for(int i=this.num_layers-1; i>=0; i--){
@@ -71,50 +99,87 @@ public class Network implements Serializable{
             // If the layer is not trainable (activation layers)
             if(!layer.is_trainable()){
                 grad = layer.backward(grad);
+                continue;
             }
 
             grad = layer.backward(grad);
-            gradient_weights.add(layer.get_weights_gradients());
-            biases_gradient.add(layer.get_biases_gradients());
+            // add up the computed gradient to the total gradients
+            this.weights_gradient.get(gradientList_index).addi(layer.get_weights_gradients());
+            this.biases_gradient.get(gradientList_index).addi(layer.get_biases_gradients());
+            //Reduce gradientList_index after each trainable layer
+            gradientList_index--;
         }
 
-        // reverse the gradient list because we have been adding it backwards
-        Collections.reverse(gradient_weights);
-        Collections.reverse(gradient_biases);
-
-        // We forged the two gradients to a list and return it so other methods can use it.
-        List<List<INDArray>> gradients = new ArrayList<>();
-        gradients.add(gradient_weights);
-        gradients.add(gradient_biases);
-        return gradients;
+        return;
     }
 
 
-    public void update_mini_batch(List<List<INDArray>> mini_batches, float learning_rate){
-        
-    }
+    public void update_mini_batch(List<List<INDArray>> mini_batches, float learning_rate, int mini_batch_size){
+        // reset the network's gradients lists
+        this.biases_gradient = new ArrayList<>();
+        this.weights_gradient = new ArrayList<>();
 
-
-    public void train(List<List<INDArray>> training_datas, int epochs, float learning_rate, List<List<INDArray>> test_datas){
-        for(int e=0; e<epochs; e++){
-            for(List<INDArray> training_data: training_datas){
-                INDArray output = training_data.get(0);
-                INDArray y = training_data.get(1);
-
-                for(Layer layer: this.layers){
-                    output = layer.forward(output);
-                }
-
-                INDArray grad = cost_derivative(output,y);
-                for(int i=1; i<this.layers.length; i++){
-                    Layer backLayer = this.layers[this.layers.length-1];
-                    grad = backLayer.backward(grad, learning_rate);
-                }
+        /*Initialize them with zeros, gradient vectors and matrices have to be the same size of the 
+        current biases and weights of the network*/ 
+        for(int i=0; i<this.num_layers; i++){
+            Layer layer = this.layers[i];
+            if(layer.is_trainable()){
+                this.weights_gradient.add(Nd4j.zerosLike(layer.get_weights()));
+                this.biases_gradient.add(Nd4j.zerosLike(layer.get_biases()));
             }
-            // Print out the evaluated accuracy on current epoch
-            System.out.println(String.format("Epoch %d: %d / %d", e, this.evaluate(test_datas), 10000));
         }
+
+        // Iterate throught the mini batches
+        for(List<INDArray> mini_batch : mini_batches){
+            // Get the raw input and the correct labeled output
+            INDArray input = mini_batch.get(0);
+            INDArray desiredOutput = mini_batch.get(1);
+
+            // Calling backpropagation method and let it compute the summud up gradients list
+            this.backpropagation(input, desiredOutput);
+        }
+
+        int gradientList_index=0;
+        // Iterate through the network's layers to apply the computed gradients
+        for(Layer layer : this.layers){
+            if(!layer.is_trainable()){
+                continue;
+            }
+
+            // If the layer is trainable, get according gradient
+            INDArray bias_gradient = this.biases_gradient.get(gradientList_index);
+            INDArray weight_gradient = this.weights_gradient.get(gradientList_index);
+
+            // Use the update_mini_batch method of each trainable layer
+            layer.update_mini_batch(weight_gradient, bias_gradient, learning_rate, mini_batch_size);
+            // Update the gradient list index
+            gradientList_index++;
+        }
+
+        return;
     }
+
+
+    // public void train(List<List<INDArray>> training_datas, int epochs, float learning_rate, List<List<INDArray>> test_datas){
+    //     for(int e=0; e<epochs; e++){
+    //         for(List<INDArray> training_data: training_datas){
+    //             INDArray output = training_data.get(0);
+    //             INDArray y = training_data.get(1);
+
+    //             for(Layer layer: this.layers){
+    //                 output = layer.forward(output);
+    //             }
+
+    //             INDArray grad = cost_derivative(output,y);
+    //             for(int i=1; i<this.layers.length; i++){
+    //                 Layer backLayer = this.layers[this.layers.length-1];
+    //                 grad = backLayer.backward(grad, learning_rate);
+    //             }
+    //         }
+    //         // Print out the evaluated accuracy on current epoch
+    //         System.out.println(String.format("Epoch %d: %d / %d", e, this.evaluate(test_datas), 10000));
+    //     }
+    // }
 
 
     // Comput the mean-square cost derivative

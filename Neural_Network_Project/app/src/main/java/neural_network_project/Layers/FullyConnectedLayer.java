@@ -69,37 +69,43 @@ public class FullyConnectedLayer extends Layer{
     }
 
 
+    @Override
     public void update_mini_batch(INDArray weights_gradient, INDArray biases_gradient, float learning_rate, int mini_batch_size){
         // Calculate the average gradient of the mini batch and update the parameters with learning rate
         INDArray average_weights_gradient = weights_gradient.muli(learning_rate/mini_batch_size);
         this.weights.subi(average_weights_gradient);
 
-        INDArray average_biases_gradient = weights_gradient.muli(learning_rate/mini_batch_size);
+        INDArray average_biases_gradient = biases_gradient.muli(learning_rate/mini_batch_size);
         this.biases.subi(average_biases_gradient);
     }
 
 
     // This getter method is to get the weights gradients of the current layer
+    @Override
     public INDArray get_weights_gradients(){
         return this.weights_gradient;
     }
 
     // This getter method is to get the biases gradients of the current layer
+    @Override
     public INDArray get_biases_gradients(){
         return this.biases_gradient;
     }
 
     // This method returns the current layer's weights
+    @Override
     public INDArray get_weights(){
         return this.weights;
     }
 
     // This method returns the current layer's biases
+    @Override
     public INDArray get_biases(){
         return this.biases;
     }
 
     // Tell if this layer is trainable or not
+    @Override
     public boolean is_trainable(){
         return true;
     }
