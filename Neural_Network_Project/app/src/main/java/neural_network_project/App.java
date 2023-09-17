@@ -7,7 +7,7 @@ import neural_network_project.Network;
 import neural_network_project.Network1;
 import neural_network_project.Layers.FullyConnectedLayer;
 import neural_network_project.ActivationFuncs.Sigmoid;
-import neural_network_project.ActivationFuncs.Tanh;
+import neural_network_project.ActivationFuncs.TanhA;
 import neural_network_project.MnistCSVLoader;
 import java.util.ArrayList;
 import java.util.List;
