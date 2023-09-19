@@ -55,7 +55,7 @@ public class Network2 implements Serializable{
             INDArray biasesMatrix = this.biases.get(i);
             a = weightsMatrix.mmul(a);
             a = a.add(biasesMatrix);
-            a = Transforms.sigmoid(a);
+            a = Transforms.hardTanh(a);
         }
         return a;
     }
@@ -104,21 +104,21 @@ public class Network2 implements Serializable{
             INDArray biasesMatrix = this.biases.get(i);
             INDArray z = weightsMatrix.mmul(activation).add(biasesMatrix);
             z_vectors.add(z);
-            activation = Transforms.sigmoid(z);
+            activation = Transforms.hardTanh(z);
             activations.add(activation);
         }
 
         INDArray last_activation_layer = activations.get(activations.size()-1);
         INDArray last_z_vector_layer = z_vectors.get(z_vectors.size()-1);
         // Backward pass
-        INDArray delta_vector = this.cost_derivative(last_activation_layer, desiredOutput).mul(Transforms.sigmoidDerivative(last_z_vector_layer));
+        INDArray delta_vector = this.cost_derivative(last_activation_layer, desiredOutput).mul(Transforms.hardTanhDerivative(last_z_vector_layer));
         gradient_biases.set(gradient_biases.size()-1,delta_vector);
         gradient_weights.set(gradient_weights.size()-1,delta_vector.mmul(activations.get(activations.size()-2).transpose()));
 
 
         for(int l=2; l < this.num_layers; l++){
             INDArray z = z_vectors.get(z_vectors.size() - l);
-            INDArray sigmoid_prime = Transforms.sigmoidDerivative(z);
+            INDArray sigmoid_prime = Transforms.hardTanhDerivative(z);
             delta_vector = this.weights.get(this.weights.size()-l+1).transpose().mmul(delta_vector).mul(sigmoid_prime);
 
             gradient_biases.set(gradient_biases.size()-l, delta_vector);

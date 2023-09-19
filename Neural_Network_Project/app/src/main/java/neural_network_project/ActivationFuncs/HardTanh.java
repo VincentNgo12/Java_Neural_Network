@@ -11,25 +11,22 @@ import neural_network_project.Helper;
 import org.nd4j.linalg.factory.Nd4j;
 import org.nd4j.linalg.api.ndarray.INDArray;
 import org.nd4j.linalg.ops.transforms.Transforms;
-import org.nd4j.linalg.api.ops.impl.transforms.strict.TanhDerivative;
-import org.nd4j.linalg.api.ops.impl.transforms.strict.Tanh;
-//import org.nd4j.linalg.api.ops.impl.transforms.gradient.TanhDerivative;
 
-public class TanhA extends Layer{
+
+public class HardTanh extends Layer{
     INDArray input;
     // Apply an activation func to a Vector, element-wise.
     @Override
     public INDArray forward(INDArray input){
         this.input = input;
-        return Nd4j.getExecutioner().exec(new Tanh(input.dup()));
+        return Transforms.hardTanh(input);
     }
 
 
     // comput the input gradient (cost derivative respect to input)
     @Override
     public INDArray backward(INDArray output_gradient){
-        INDArray tanhDerivative = Nd4j.getExecutioner().exec(new TanhDerivative(this.input.dup()));
-        return output_gradient.muli(tanhDerivative);
+        return output_gradient.muli(Transforms.hardTanhDerivative(this.input));
     }
 
     // Tell if this layer is trainable or not
