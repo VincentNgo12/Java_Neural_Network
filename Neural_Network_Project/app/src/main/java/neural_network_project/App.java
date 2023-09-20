@@ -9,6 +9,7 @@ import neural_network_project.Network2;
 import neural_network_project.Layers.FullyConnectedLayer;
 import neural_network_project.ActivationFuncs.Sigmoid;
 import neural_network_project.ActivationFuncs.TanhA;
+import neural_network_project.ActivationFuncs.Tanh;
 import neural_network_project.ActivationFuncs.HardTanh;
 import neural_network_project.MnistCSVLoader;
 import java.util.ArrayList;
@@ -29,10 +30,10 @@ public class App {
         // Network1 net = new Network1(new int[]{784 , 30, 10});
         // net.stochasticGradientDescent(training_datas, 5, 10, 3.0f, testing_datas);
         Network net = new Network(new FullyConnectedLayer(784, 30),
-                                    new TanhA(),
+                                    new HardTanh(),
                                     new FullyConnectedLayer(30, 10),
-                                    new TanhA());
+                                    new HardTanh());
 
-        net.stochastic_gradient_descent(training_datas, 30, 10, 3.0f, testing_datas);
+        net.stochastic_gradient_descent(training_datas, 30, 10, 1.0f, testing_datas);
     }
 }

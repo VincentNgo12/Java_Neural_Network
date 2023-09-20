@@ -6,7 +6,6 @@ import java.util.List;
 
 import java.util.Arrays;
 import neural_network_project.Layers.Layer;
-import neural_network_project.Layers.Layer;
 import neural_network_project.Helper;
 import org.nd4j.linalg.factory.Nd4j;
 import org.nd4j.linalg.api.ndarray.INDArray;
