@@ -3,6 +3,7 @@ package neural_network_project.ActivationFuncs;
 import java.util.Collections;
 import java.util.ArrayList;
 import java.util.List;
+import java.io.Serializable;
 
 import java.util.Arrays;
 import neural_network_project.Layers.Layer;
@@ -14,7 +15,7 @@ import org.nd4j.linalg.api.ops.impl.transforms.strict.TanhDerivative;
 import org.nd4j.linalg.api.ops.impl.transforms.strict.Tanh;
 //import org.nd4j.linalg.api.ops.impl.transforms.gradient.TanhDerivative;
 
-public class TanhA extends Layer{
+public class TanhA extends Layer implements Serializable{
     INDArray input;
     // Apply an activation func to a Vector, element-wise.
     @Override

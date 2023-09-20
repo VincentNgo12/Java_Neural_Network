@@ -3,6 +3,7 @@ package neural_network_project.Layers;
 import java.util.Collections;
 import java.util.ArrayList;
 import java.util.List;
+import java.io.Serializable;
 
 import javax.sound.midi.SysexMessage;
 
@@ -14,7 +15,7 @@ import org.nd4j.linalg.api.ndarray.INDArray;
 import org.nd4j.linalg.ops.transforms.Transforms;
 
 
-public class FullyConnectedLayer extends Layer{
+public class FullyConnectedLayer extends Layer implements Serializable{
     int n_In;
     int n_Out;
     INDArray biases;

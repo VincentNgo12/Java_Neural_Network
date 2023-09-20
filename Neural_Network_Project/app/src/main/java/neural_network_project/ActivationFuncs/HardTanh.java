@@ -3,6 +3,7 @@ package neural_network_project.ActivationFuncs;
 import java.util.Collections;
 import java.util.ArrayList;
 import java.util.List;
+import java.io.Serializable;
 
 import java.util.Arrays;
 import neural_network_project.Layers.Layer;
@@ -12,7 +13,7 @@ import org.nd4j.linalg.api.ndarray.INDArray;
 import org.nd4j.linalg.ops.transforms.Transforms;
 
 
-public class HardTanh extends Layer{
+public class HardTanh extends Layer implements Serializable{
     INDArray input;
     // Apply an activation func to a Vector, element-wise.
     @Override

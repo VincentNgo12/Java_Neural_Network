@@ -192,4 +192,30 @@ public class Network implements Serializable{
 
         return correct_predictions;
     }
+
+
+    // This method is used to serialize an object of the Network class (usually a trained network)
+    public void saveNetwork(String fileLocation) {
+        try (ObjectOutputStream output = new ObjectOutputStream(new FileOutputStream(fileLocation))) {
+            System.out.println("Saving current Network...");
+            output.writeObject(this);
+            System.out.println("Network saved.");
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+
+    // This method is used to load a Network object from a serialized object
+    public static Network1 loadNetwork(String fileLocation) {
+        Network1 net = null;
+        try (ObjectInputStream input = new ObjectInputStream(new FileInputStream(fileLocation))) {
+            System.out.println("Loading Network...");
+            net = (Network1) input.readObject();
+            System.out.println("Network loaded");
+        } catch (IOException | ClassNotFoundException e) {
+            e.printStackTrace();
+        }
+        return net;
+    }
 }
