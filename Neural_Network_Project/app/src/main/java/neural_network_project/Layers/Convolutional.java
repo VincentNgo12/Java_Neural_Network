@@ -28,23 +28,20 @@ public class FullyConnectedLayer extends Layer implements Serializable{
     INDArray biases_gradient;
     INDArray kernels;
     INDArray kernels_gradient;
-    INDArray weights;
-    INDArray weights_gradient;
 
-    List<INDArray> parameters = new ArrayList<>();
     
     // Initalizing the Fully Connected Layer
-    public FullyConnectedLayer(int n_In, int n_Out){
-        this.n_In = n_In;
-        this.n_Out = n_Out;
+    public FullyConnectedLayer(int input_height, int input_width, int input_depth, int kernel_size, int depth){
+        this.input_height = input_height;
+        this.input_width = input_width;
+        this.input_depth = input_depth;
+        this.depth = depth;
+
 
         // Initializing the parameters of the layer
-        this.biases = Nd4j.randn(n_Out, 1);
-        this.weights = Nd4j.randn(n_Out, n_In);
+        this.biases = Nd4j.randn(depth, input_height - kernel_size + 1, input_width - kernel_size + 1);
+        this.kernels = Nd4j.randn(depth, input_depth, kernel_size, kernel_size);
 
-        // Assign the parameters list
-        this.parameters.add(this.weights);
-        this.parameters.add(this.biases);
     }
 
 
