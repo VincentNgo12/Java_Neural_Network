@@ -22,8 +22,8 @@ public class Tanh extends Layer implements Serializable{
         // Apply the custom tanh function to each element of the array
         for (int i = 0; i < input.rows(); i++) {
             for (int j = 0; j < input.columns(); j++) {
-                double value = input.getDouble(i, j);
-                double newValue = tanh(value);
+                float value = input.getDouble(i, j);
+                float newValue = tanh(value);
                 input.putScalar(i, j, newValue);
             }
         }
