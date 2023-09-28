@@ -11,6 +11,7 @@ public abstract class Layer implements Serializable{
     public abstract INDArray forward(INDArray input);
     public abstract INDArray backward(INDArray output_gradient);
     public abstract boolean is_trainable();
+    public abstract String get_info();
     // Methods for tranable layers
     public void update_mini_batch(INDArray weights_gradient, INDArray biases_gradient, float learning_rate, int mini_batch_size){
         throw new UnsupportedOperationException("Layer not trainable.");

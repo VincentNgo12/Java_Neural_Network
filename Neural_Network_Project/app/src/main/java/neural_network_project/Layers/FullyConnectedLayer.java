@@ -110,4 +110,10 @@ public class FullyConnectedLayer extends Layer implements Serializable{
     public boolean is_trainable(){
         return true;
     }
+
+
+    @Override
+    public String get_info(){
+        return String.format("Fully Connected Layer (%d,%d)", this.n_In, this.n_Out);
+    }
 }

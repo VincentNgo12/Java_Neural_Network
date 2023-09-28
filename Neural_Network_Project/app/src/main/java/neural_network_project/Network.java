@@ -24,6 +24,7 @@ import java.io.Serializable;
 
 
 public class Network implements Serializable{
+    private static final long serialVersionUID = 1L;
     Layer[] layers;
     int num_layers;
     List<INDArray> biases_gradient;
@@ -207,15 +208,24 @@ public class Network implements Serializable{
 
 
     // This method is used to load a Network object from a serialized object
-    public static Network1 loadNetwork(String fileLocation) {
-        Network1 net = null;
+    public static Network loadNetwork(String fileLocation) {
+        Network net = null;
         try (ObjectInputStream input = new ObjectInputStream(new FileInputStream(fileLocation))) {
             System.out.println("Loading Network...");
-            net = (Network1) input.readObject();
+            net = (Network) input.readObject();
             System.out.println("Network loaded");
         } catch (IOException | ClassNotFoundException e) {
             e.printStackTrace();
         }
         return net;
+    }
+
+
+    public void info(){
+        for(int i = 0; i<this.layers.length; i++){
+            Layer layer = this.layers[i];
+            System.out.printf("Layer #%d: %s \n", i, layer.get_info());
+        }
+        return;
     }
 }

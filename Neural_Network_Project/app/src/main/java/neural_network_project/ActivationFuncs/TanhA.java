@@ -36,4 +36,10 @@ public class TanhA extends Layer implements Serializable{
     public boolean is_trainable(){
         return false;
     }
+
+
+    @Override
+    public String get_info(){
+        return "Tanh Activation";
+    }
 }

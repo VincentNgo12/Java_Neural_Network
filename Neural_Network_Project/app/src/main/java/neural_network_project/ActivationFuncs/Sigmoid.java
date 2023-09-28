@@ -34,4 +34,10 @@ public class Sigmoid extends Layer implements Serializable{
     public boolean is_trainable(){
         return false;
     }
+
+
+    @Override
+    public String get_info(){
+        return "Sigmoid Activation";
+    }
 }

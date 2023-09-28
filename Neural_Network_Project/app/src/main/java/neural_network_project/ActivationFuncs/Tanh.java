@@ -60,4 +60,10 @@ public class Tanh extends Layer implements Serializable{
     public static double tanhDerivative(double x) {
         return 1 - Math.pow(Math.tanh(x), 2);
     }
+
+
+    @Override
+    public String get_info(){
+        return "Tanh Activation";
+    }
 }
