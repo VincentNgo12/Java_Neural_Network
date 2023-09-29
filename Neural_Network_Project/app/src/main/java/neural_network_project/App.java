@@ -27,20 +27,20 @@ public class App {
         List<List<INDArray>> testing_datas = MnistCSVLoader.LoadData(testFile);
 
 
-        //Network1 net = new Network1(new int[]{784 , 30, 10});
-        //net.stochasticGradientDescent(training_datas, 1, 10, 3.0f, testing_datas);
-        // Network net = new Network(new FullyConnectedLayer(784, 30),
-        //                             new Sigmoid(),
-        //                             new FullyConnectedLayer(30, 10),
-        //                             new Sigmoid());
+        // Network1 net = new Network1(new int[]{784 , 30, 10});
+        // net.stochasticGradientDescent(training_datas, 1, 10, 3.0f, testing_datas);
+        Network net = new Network(new FullyConnectedLayer(784, 30),
+                                    new Tanh(),
+                                    new FullyConnectedLayer(30, 10),
+                                    new Tanh());
 
-        // net.stochastic_gradient_descent(training_datas, 1, 10, 3.0f, testing_datas);
+        net.stochastic_gradient_descent(training_datas, 20, 10, 0.02f, testing_datas);
         // net.saveNetwork("/workspaces/Java_Neural_Network/Neural_Network_Project/app/src/main/java/neural_network_project/network.ser");
 
-        Network net = Network.loadNetwork("/workspaces/Java_Neural_Network/Neural_Network_Project/app/src/main/java/neural_network_project/network.ser");
-        net.info();
-        for(int i=0; i<100; i++){
-            System.out.printf("#%d: %d/10000 \n", i, net.evaluate(testing_datas));
-        }
+        // Network net = Network.loadNetwork("/workspaces/Java_Neural_Network/Neural_Network_Project/app/src/main/java/neural_network_project/network.ser");
+        // net.info();
+        // for(int i=0; i<100; i++){
+        //     System.out.printf("#%d: %d/10000 \n", i, net.evaluate(testing_datas));
+        // }
     }
 }

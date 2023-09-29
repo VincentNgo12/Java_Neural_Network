@@ -22,7 +22,7 @@ public class Tanh extends Layer implements Serializable{
         // Apply the custom tanh function to each element of the array
         for (int i = 0; i < input.rows(); i++) {
             for (int j = 0; j < input.columns(); j++) {
-                float value = input.getDouble(i, j);
+                float value = input.getFloat(i, j);
                 float newValue = tanh(value);
                 input.putScalar(i, j, newValue);
             }
@@ -37,8 +37,8 @@ public class Tanh extends Layer implements Serializable{
         // apply the tanh derivative to the input indarray
         for (int i = 0; i < this.input.rows(); i++) {
             for (int j = 0; j < this.input.columns(); j++) {
-                double value = this.input.getDouble(i, j);
-                double newValue = tanhDerivative(value);
+                float value = this.input.getFloat(i, j);
+                float newValue = tanhDerivative(value);
                 this.input.putScalar(i, j, newValue);
             }
         }
@@ -52,13 +52,13 @@ public class Tanh extends Layer implements Serializable{
 
 
     // The tanh function
-    public static double tanh(double x) {
-        return Math.tanh(x);
+    public static float tanh(float x) {
+        return (float)Math.tanh(x);
     }
 
     //The tanh derivative function
-    public static double tanhDerivative(double x) {
-        return 1 - Math.pow(Math.tanh(x), 2);
+    public static float tanhDerivative(float x) {
+        return (float)(1 - Math.pow(Math.tanh(x), 2));
     }
 
 
