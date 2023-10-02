@@ -11,7 +11,7 @@ import neural_network_project.ActivationFuncs.Sigmoid;
 import neural_network_project.ActivationFuncs.TanhA;
 import neural_network_project.ActivationFuncs.Tanh;
 import neural_network_project.ActivationFuncs.HardTanh;
-import neural_network_project.MnistCSVLoader;
+import neural_network_project.Helpers.MnistCSVLoader;
 import java.util.ArrayList;
 import java.util.List;
 import org.nd4j.linalg.factory.Nd4j;

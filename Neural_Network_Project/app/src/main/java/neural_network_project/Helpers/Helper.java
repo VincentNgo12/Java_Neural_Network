@@ -1,4 +1,4 @@
-package neural_network_project;
+package neural_network_project.Helpers;
 
 import java.util.ArrayList;
 import java.util.List;
