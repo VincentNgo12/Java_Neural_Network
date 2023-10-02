@@ -17,6 +17,8 @@ import java.util.List;
 import org.nd4j.linalg.factory.Nd4j;
 import org.nd4j.linalg.api.ndarray.INDArray;
 
+//import processing.core.*;
+
 public class App {
 
     public static void main(String[] args) {
@@ -30,11 +32,11 @@ public class App {
         // Network1 net = new Network1(new int[]{784 , 30, 10});
         // net.stochasticGradientDescent(training_datas, 1, 10, 3.0f, testing_datas);
         Network net = new Network(new FullyConnectedLayer(784, 30),
-                                    new Tanh(),
+                                    new Sigmoid(),
                                     new FullyConnectedLayer(30, 10),
-                                    new Tanh());
+                                    new Sigmoid());
 
-        net.stochastic_gradient_descent(training_datas, 20, 10, 0.02f, testing_datas);
+        net.stochastic_gradient_descent(training_datas, 20, 10, 3.0f, testing_datas);
         // net.saveNetwork("/workspaces/Java_Neural_Network/Neural_Network_Project/app/src/main/java/neural_network_project/network.ser");
 
         // Network net = Network.loadNetwork("/workspaces/Java_Neural_Network/Neural_Network_Project/app/src/main/java/neural_network_project/network.ser");
@@ -43,4 +45,59 @@ public class App {
         //     System.out.printf("#%d: %d/10000 \n", i, net.evaluate(testing_datas));
         // }
     }
+
+
+    // PImage screenshot;
+    // float[] grayscalePixels;
+    
+    // public void settings() {
+    // 	size(400, 400);
+    // }
+    
+    
+    // public void setup() {
+    	 
+    // 	background(0);
+	// }
+
+	// public void draw() {
+	// 	if(mousePressed){
+	// 		stroke(255);
+	// 		strokeWeight(20);
+	// 		line(pmouseX,pmouseY,mouseX,mouseY);
+	// 	}
+	// }
+	
+	
+	// public void keyPressed(){
+	// 	if(key == 's'){
+	// 		screenshot = get();
+	// 		screenshot.resize(28,28);
+	// 		grayscalePixels = new float[screenshot.pixels.length];
+			
+	// 		screenshot.loadPixels();
+	// 		for (int i = 0; i < screenshot.pixels.length; i++) {
+	// 			// Extract the RGB components of the pixel
+	// 			int c = screenshot.pixels[i];
+
+	// 			// Calculate the grayscale value
+	// 			float grayscaleValue = (red(c) + green(c) + blue(c)) / 3;
+
+	// 			// Store the grayscale value in the new array
+	// 			grayscalePixels[i] = grayscaleValue;
+	// 		}
+
+	// 		println(grayscalePixels);
+			
+	// 	}else if(key == 'e'){
+	// 		background(0);
+	// 	}else if(key == 'p') {
+	// 		INDArray input = PixelsArrayLoader.getData(this.grayscalePixels);
+	// 		INDArray result = net.feedforward(input);
+			
+	// 		int predicted_number = Nd4j.argMax(result).getInt(0);
+			
+	// 		println("The Computer thinks this is a " + predicted_number);
+	// 	}
+	// }
 }

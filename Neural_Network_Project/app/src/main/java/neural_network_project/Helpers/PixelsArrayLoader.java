@@ -8,7 +8,7 @@ import java.util.List;
 
 
 public class PixelsArrayLoader{
-    public static INDArray getData(int[] pixels){
+    public static INDArray getData(float[] pixels){
         // Create an INDArray from the pixel values
         INDArray pixels_values = Nd4j.create(pixels).reshape(pixels.length, 1).divi(255.0f);
         
