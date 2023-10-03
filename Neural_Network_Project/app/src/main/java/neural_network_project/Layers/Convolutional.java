@@ -15,7 +15,7 @@ import org.nd4j.linalg.ops.transforms.Transforms;
 import org.nd4j.linalg.convolution.Convolution;
 
 
-public class FullyConnectedLayer extends Layer implements Serializable{
+public class Convolutional extends Layer implements Serializable{
     int input_depth;
     int input_height;
     int input_width;
@@ -32,7 +32,7 @@ public class FullyConnectedLayer extends Layer implements Serializable{
 
     
     // Initalizing the Fully Connected Layer
-    public FullyConnectedLayer(int input_height, int input_width, int input_depth, int kernel_size, int depth){
+    public Convolutional(int input_height, int input_width, int input_depth, int kernel_size, int depth){
         this.input_height = input_height;
         this.input_width = input_width;
         this.input_depth = input_depth;
@@ -50,12 +50,12 @@ public class FullyConnectedLayer extends Layer implements Serializable{
     @Override
     public INDArray forward(INDArray input){
         this.input = input;
-        this.output = self.biases.dup();
+        this.output = this.biases.dup();
 
-        for(int i=0; i<self.depth; i++){
-            for(int j=0; j<self.input_depth; j++){
-                INDArray convoled_image = Convolution.convolve(self.input.slice(j), self.kernels.slice(i,j), Convolution.Type.VALID);
-                self.output.slice(i).sumi(convoled_image);
+        for(int i=0; i<this.depth; i++){
+            for(int j=0; j<this.input_depth; j++){
+                INDArray convoled_image = Convolution.convolve(this.input.slice(j), this.kernels.slice(i,j), Convolution.Type.VALID);
+                this.output.slice(i).addi(convoled_image);
             }
         }
 
@@ -90,13 +90,18 @@ public class FullyConnectedLayer extends Layer implements Serializable{
     @Override
     public void update_mini_batch(INDArray weights_gradient, INDArray biases_gradient, float learning_rate, int mini_batch_size){
         // Calculate the average gradient of the mini batch and update the parameters with learning rate
+        INDArray average_kernels_gradient = weights_gradient.muli(learning_rate/mini_batch_size);
+        this.kernels.subi(average_kernels_gradient);
+
+        INDArray average_biases_gradient = biases_gradient.muli(learning_rate/mini_batch_size);
+        this.biases.subi(average_biases_gradient);
     }
 
 
     // This getter method is to get the weights gradients of the current layer
     @Override
     public INDArray get_weights_gradients(){
-        return this.weights_gradient;
+        return this.kernels_gradient;
     }
 
     // This getter method is to get the biases gradients of the current layer
@@ -108,7 +113,7 @@ public class FullyConnectedLayer extends Layer implements Serializable{
     // This method returns the current layer's weights
     @Override
     public INDArray get_weights(){
-        return this.weights;
+        return this.kernels;
     }
 
     // This method returns the current layer's biases
@@ -121,5 +126,12 @@ public class FullyConnectedLayer extends Layer implements Serializable{
     @Override
     public boolean is_trainable(){
         return true;
+    }
+
+
+    // Get info of layer
+    @Override
+    public String get_info(){
+        return String.format("Convolutional Layer");
     }
 }

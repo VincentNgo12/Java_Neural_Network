@@ -12,6 +12,7 @@ import neural_network_project.ActivationFuncs.TanhA;
 import neural_network_project.ActivationFuncs.Tanh;
 import neural_network_project.ActivationFuncs.HardTanh;
 import neural_network_project.Helpers.MnistCSVLoader;
+import neural_network_project.Helpers.PixelsArrayLoader;
 import java.util.ArrayList;
 import java.util.List;
 import org.nd4j.linalg.factory.Nd4j;
