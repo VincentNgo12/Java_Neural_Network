@@ -46,7 +46,7 @@ public class Network implements Serializable{
     }
 
 
-    public void stochastic_gradient_descent(List<List<INDArray>> training_datas, int epochs, int mini_batch_size, float learning_rate, List<List<INDArray>> test_datas){
+    public void stochastic_gradient_descent(List<List<INDArray>> training_datas, int epochs, int mini_batch_size, float learning_rate, float lambda, List<List<INDArray>> test_datas){
         // Size of each datasets. One for training and one for testing.
         int n_test = test_datas.size();
         int n = training_datas.size();
@@ -64,7 +64,7 @@ public class Network implements Serializable{
 
             // Train the network using update_mini_batch() (which uses backpropagation())
             for(List<List<INDArray>> mini_batch : mini_batches){
-                this.update_mini_batch(mini_batch, learning_rate, mini_batch_size);
+                this.update_mini_batch(mini_batch, learning_rate, lambda, mini_batch_size, n);
             }
 
             // Print out the evaluated accuracy on current epoch
@@ -115,7 +115,7 @@ public class Network implements Serializable{
     }
 
 
-    public void update_mini_batch(List<List<INDArray>> mini_batches, float learning_rate, int mini_batch_size){
+    public void update_mini_batch(List<List<INDArray>> mini_batches, float learning_rate, float lambda, int mini_batch_size, int n){
         // reset the network's gradients lists
         this.biases_gradient = new ArrayList<>();
         this.weights_gradient = new ArrayList<>();
@@ -152,7 +152,7 @@ public class Network implements Serializable{
             INDArray weight_gradient = this.weights_gradient.get(gradientList_index);
 
             // Use the update_mini_batch method of each trainable layer
-            layer.update_mini_batch(weight_gradient, bias_gradient, learning_rate, mini_batch_size);
+            layer.update_mini_batch(weight_gradient, bias_gradient, learning_rate, lambda, mini_batch_size, n);
             // Update the gradient list index
             gradientList_index++;
         }

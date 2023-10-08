@@ -70,9 +70,10 @@ public class FullyConnectedLayer extends Layer implements Serializable{
 
 
     @Override
-    public void update_mini_batch(INDArray weights_gradient, INDArray biases_gradient, float learning_rate, int mini_batch_size){
+    public void update_mini_batch(INDArray weights_gradient, INDArray biases_gradient, float learning_rate, float lambda, int mini_batch_size, int n){
         // Calculate the average gradient of the mini batch and update the parameters with learning rate
         INDArray average_weights_gradient = weights_gradient.muli(learning_rate/mini_batch_size);
+        this.weights.muli(1-learning_rate*(lambda/n)); //L2 Regularization *n is the size of training dataset*
         this.weights.subi(average_weights_gradient);
 
         INDArray average_biases_gradient = biases_gradient.muli(learning_rate/mini_batch_size);
