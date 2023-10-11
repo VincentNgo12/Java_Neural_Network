@@ -11,6 +11,7 @@ import neural_network_project.ActivationFuncs.Sigmoid;
 import neural_network_project.ActivationFuncs.TanhA;
 import neural_network_project.ActivationFuncs.Tanh;
 import neural_network_project.ActivationFuncs.HardTanh;
+import neural_network_project.ActivationFuncs.ReLU;
 import neural_network_project.Helpers.MnistCSVLoader;
 import neural_network_project.Helpers.PixelsArrayLoader;
 import java.util.ArrayList;
@@ -23,19 +24,20 @@ import org.nd4j.linalg.api.ndarray.INDArray;
 public class App {
 
     public static void main(String[] args) {
-        String trainingFile = "/workspaces/Java_Neural_Network/Neural_Network_Project/resources/MNIST/mnist_train.csv";
+        String trainingFile = "/workspaces/Java_Neural_Network/Neural_Network_Project/resources/MNIST/MNIST_training_dataset.csv";
+		String trainingFile1 = "/workspaces/Java_Neural_Network/Neural_Network_Project/resources/MNIST/mnist_train.csv";
         String testFile = "/workspaces/Java_Neural_Network/Neural_Network_Project/resources/MNIST/mnist_test.csv";
 
-        List<List<INDArray>> training_datas = MnistCSVLoader.LoadData(trainingFile);
+        List<List<INDArray>> training_datas = MnistCSVLoader.LoadData(trainingFile1);
         List<List<INDArray>> testing_datas = MnistCSVLoader.LoadData(testFile);
 
 
-        Network net = new Network(new FullyConnectedLayer(784, 30),
-                                    new Sigmoid(),
-                                    new FullyConnectedLayer(30, 10),
-                                    new Sigmoid());
+        Network net = new Network(new FullyConnectedLayer(784, 100),
+                                    new ReLU(),
+                                    new FullyConnectedLayer(100, 10),
+                                    new ReLU());
 
-        net.stochastic_gradient_descent(training_datas, 20, 10, 3.0f, 5.0f, testing_datas);
+        net.stochastic_gradient_descent(training_datas, 5, 10, 0.05f, 5.0f, testing_datas);
         // net.saveNetwork("/workspaces/Java_Neural_Network/Neural_Network_Project/app/src/main/java/neural_network_project/network.ser");
 
         // Network net = Network.loadNetwork("/workspaces/Java_Neural_Network/Neural_Network_Project/app/src/main/java/neural_network_project/network.ser");
@@ -46,57 +48,102 @@ public class App {
     }
 
 
-    // PImage screenshot;
-    // float[] grayscalePixels;
-    
-    // public void settings() {
-    // 	size(400, 400);
-    // }
-    
-    
-    // public void setup() {
-    	 
-    // 	background(0);
-	// }
+	PImage screenshot;
+	float[] grayscalePixels;
+	int CANVA_LENGTH = 250;
+	int CANVA_POSX = 50;
+	int CANVA_POSY = 70;
+	int STROKE_WEIGHT = 20;
+   
+	public void settings() {
+		size(800, 400);
+	}
+   
+   
+	public void setup() {
+	   background(100);
+	   fill(0);
+	   noStroke();
+	   rect(CANVA_POSX, CANVA_POSY, CANVA_LENGTH, CANVA_LENGTH);
+	}
 
-	// public void draw() {
-	// 	if(mousePressed){
-	// 		stroke(255);
-	// 		strokeWeight(20);
-	// 		line(pmouseX,pmouseY,mouseX,mouseY);
-	// 	}
-	// }
+	public void draw() {
+	   if(mousePressed && mouseInCanva()){
+		   stroke(255);
+		 strokeWeight(STROKE_WEIGHT);
+		   line(pmouseX,pmouseY,mouseX,mouseY);
+	   }
+	   
+	   fill(255);
+	   textSize(40);
+	   text("The Computer Thinks", 400, 50);
+	   text("It's A", 550, 90);
+	}
+   
+   
+	public void keyPressed(){
+		if(key == 's'){
+			screenshot = get();
+			screenshot.resize(28,28);
+			grayscalePixels = new float[screenshot.pixels.length];
+		   
+			screenshot.loadPixels();
+			for (int i = 0; i < screenshot.pixels.length; i++) {
+				// Extract the RGB components of the pixel
+				int c = screenshot.pixels[i];
+
+				// Calculate the grayscale value
+				float grayscaleValue = (red(c) + green(c) + blue(c)) / 3;
+
+				// Store the grayscale value in the new array
+				grayscalePixels[i] = grayscaleValue;
+			}
+
+			println(grayscalePixels);
+		   
+		}else if(key == 'e'){
+			setup();
+		}else if(key == 'p') {
+			INDArray input = PixelsArrayLoader.getData(this.grayscalePixels);
+			INDArray result = net.feedforward(input);
+		   
+		int predicted_number = Nd4j.argMax(result).getInt(0);
+		   
+			println("The Computer thinks this is a " + predicted_number);
+		}
+   }
 	
+	public boolean mouseInCanva(){
+	   return ((mouseX>=CANVA_POSX && mouseX<=(CANVA_LENGTH+CANVA_POSX)) && (mouseY>=CANVA_POSY && mouseY<=(CANVA_LENGTH+CANVA_POSY)));
+   }
 	
-	// public void keyPressed(){
-	// 	if(key == 's'){
-	// 		screenshot = get();
-	// 		screenshot.resize(28,28);
-	// 		grayscalePixels = new float[screenshot.pixels.length];
-			
-	// 		screenshot.loadPixels();
-	// 		for (int i = 0; i < screenshot.pixels.length; i++) {
-	// 			// Extract the RGB components of the pixel
-	// 			int c = screenshot.pixels[i];
+	public void mouseReleased(){
+	   if(mouseInCanva()){
+		   screenshot = get(CANVA_POSX, CANVA_POSY, CANVA_LENGTH, CANVA_LENGTH);
+		   screenshot.resize(28,28);
+			grayscalePixels = new float[screenshot.pixels.length];
+		   
+			screenshot.loadPixels();
+			for (int i = 0; i < screenshot.pixels.length; i++) {
+				// Extract the RGB components of the pixel
+				int c = screenshot.pixels[i];
 
-	// 			// Calculate the grayscale value
-	// 			float grayscaleValue = (red(c) + green(c) + blue(c)) / 3;
+				// Calculate the grayscale value
+				float grayscaleValue = (red(c) + green(c) + blue(c)) / 3;
 
-	// 			// Store the grayscale value in the new array
-	// 			grayscalePixels[i] = grayscaleValue;
-	// 		}
+				// Store the grayscale value in the new array
+				grayscalePixels[i] = grayscaleValue;
+	   }
+	   
+		
+		INDArray input = PixelsArrayLoader.getData(this.grayscalePixels);
+		INDArray result = net.feedforward(input);
+		   
+		int predicted_number = Nd4j.argMax(result).getInt(0);
+		
 
-	// 		println(grayscalePixels);
-			
-	// 	}else if(key == 'e'){
-	// 		background(0);
-	// 	}else if(key == 'p') {
-	// 		INDArray input = PixelsArrayLoader.getData(this.grayscalePixels);
-	// 		INDArray result = net.feedforward(input);
-			
-	// 		int predicted_number = Nd4j.argMax(result).getInt(0);
-			
-	// 		println("The Computer thinks this is a " + predicted_number);
-	// 	}
-	// }
+	   textSize(70);
+	   text(predicted_number, 550, 250);
+	   }
+   }
 }
